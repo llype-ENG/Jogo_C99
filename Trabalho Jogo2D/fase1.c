@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include <string.h>
 #include "fase1.h"
 
 #define ALTURA 5
@@ -35,10 +36,11 @@ int main() {
     jogador->x = 1; // Posição inicial
     jogador->y = 1;
 
-    char entrada;
+    char entrada , novamente[10];
 
     printf("Bem-vindo ao jogo de labirinto! Use W (cima), A (esquerda), S (baixo), D (direita) para mover-se.\n");
 
+    // Loop de movimentação do jogador dentro do labirinto
     while (1) {
         system("cls"); // Limpar tela (Windows)
         desenharLabirinto(mapa, altura, largura, jogador);
@@ -46,30 +48,36 @@ int main() {
         // Verifica se o jogador chegou ao final
         if (mapa[jogador->y][jogador->x] == 'F') {
             printf("Parabéns! Você completou o labirinto!\n");
-            break;
+            break; // Sai do loop de movimentação quando o jogador vence
         }
 
         // Captura a entrada do jogador
         entrada = getch();
         switch (entrada) {
             case 'w': // Cima
-                if (mapa[jogador->y - 1][jogador->x] != '#') jogador->y--;
+                if (jogador->y > 0 && mapa[jogador->y - 1][jogador->x] != '#') jogador->y--;
                 break;
             case 'a': // Esquerda
-                if (mapa[jogador->y][jogador->x - 1] != '#') jogador->x--;
+                if (jogador->x > 0 && mapa[jogador->y][jogador->x - 1] != '#') jogador->x--;
                 break;
             case 's': // Baixo
-                if (mapa[jogador->y + 1][jogador->x] != '#') jogador->y++;
+                if (jogador->y < altura - 1 && mapa[jogador->y + 1][jogador->x] != '#') jogador->y++;
                 break;
             case 'd': // Direita
-                if (mapa[jogador->y][jogador->x + 1] != '#') jogador->x++;
+                if (jogador->x < largura - 1 && mapa[jogador->y][jogador->x + 1] != '#') jogador->x++;
+                break;
+            default:
                 break;
         }
     }
+
+
+
+    printf("Obrigado por jogar! Até a próxima.\n");
 
     // Liberando a memória alocada
     liberarLabirinto(mapa, altura);
     free(jogador);
 
-    return 0;
+
 }
