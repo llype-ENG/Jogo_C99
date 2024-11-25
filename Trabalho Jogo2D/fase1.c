@@ -1,13 +1,44 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
-#include <string.h>
 #include "fase1.h"
+#include <conio.h>
 
-#define ALTURA 5
+#define ALTURA 10
 #define LARGURA 10
 
-int main() {
+// Função para desenhar o labirinto
+void desenharLabirinto(char **mapa, int altura, int largura, Jogador *jogador) {
+    for (int i = 0; i < altura; i++) {
+        for (int j = 0; j < largura; j++) {
+            if (i == jogador->y && j == jogador->x) {
+                printf("P "); // Representa o jogador
+            } else {
+                printf("%c ", mapa[i][j]);
+            }
+        }
+        printf("\n");
+    }
+}
+
+// Função para criar o labirinto dinamicamente
+char **criarLabirinto(int altura, int largura) {
+    char **mapa = (char **)malloc(altura * sizeof(char *));
+    for (int i = 0; i < altura; i++) {
+        mapa[i] = (char *)malloc(largura * sizeof(char));
+    }
+    return mapa;
+}
+
+// Função para liberar o labirinto
+void liberarLabirinto(char **mapa, int altura) {
+    for (int i = 0; i < altura; i++) {
+        free(mapa[i]);
+    }
+    free(mapa);
+}
+
+// Função para iniciar a fase 1
+void iniciarFase1() {
     int altura = ALTURA, largura = LARGURA;
 
     // Criando o labirinto dinamicamente
@@ -16,11 +47,17 @@ int main() {
     // Inicializando o labirinto
     char temp[ALTURA][LARGURA] = {
         {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
+        {'#', ' ', ' ', ' ', '#', ' ', '#', ' ', ' ', '#'},
+        {'#', '#', ' ', '#', '#', ' ', '#', '#', ' ', '#'},
         {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
-        {'#', ' ', '#', '#', '#', '#', ' ', '#', ' ', '#'},
-        {'#', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', '#'},
-        {'#', '#', '#', '#', '#', '#', '#', '#', 'F', '#'}
+        {'#', ' ', '#', '#', '#', ' ', ' ', '#', ' ', '#'},
+        {'#', ' ', '#', ' ', ' ', '#', ' ', '#', ' ', '#'},
+        {'#', ' ', ' ', ' ', '#', '#', ' ', ' ', ' ', '#'},
+        {'#', '#', '#', ' ', ' ', ' ', '#', '#', ' ', '#'},
+        {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'F', '#'},
+        {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}
     };
+
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
             mapa[i][j] = temp[i][j];
@@ -36,22 +73,21 @@ int main() {
     jogador->x = 1; // Posição inicial
     jogador->y = 1;
 
-    char entrada , novamente[10];
+    char entrada, nextFase;
 
     printf("Bem-vindo ao jogo de labirinto! Use W (cima), A (esquerda), S (baixo), D (direita) para mover-se.\n");
 
-    // Loop de movimentação do jogador dentro do labirinto
+   do {
+    // Reinicia o labirinto e a posição do jogador se o jogador escolher "N"
+    if (nextFase == 'N' || nextFase == 'n') {
+        // Reinicia a posição do jogador para o início
+        jogador->x = 1;
+        jogador->y = 1;
+    }
+
     while (1) {
         system("cls"); // Limpar tela (Windows)
         desenharLabirinto(mapa, altura, largura, jogador);
-
-        // Verifica se o jogador chegou ao final
-        if (mapa[jogador->y][jogador->x] == 'F') {
-            printf("Parabéns! Você completou o labirinto!\n");
-            break; // Sai do loop de movimentação quando o jogador vence
-        }
-
-        // Captura a entrada do jogador
         entrada = getch();
         switch (entrada) {
             case 'w': // Cima
@@ -66,18 +102,26 @@ int main() {
             case 'd': // Direita
                 if (jogador->x < largura - 1 && mapa[jogador->y][jogador->x + 1] != '#') jogador->x++;
                 break;
-            default:
-                break;
+        }
+
+        // Verifica se o jogador chegou ao final
+        if (mapa[jogador->y][jogador->x] == 'F') {
+            printf("Parabéns! Você completou o labirinto!\n");
+            printf("Deseja ir para a próxima fase? (S/N): ");
+            scanf(" %c", &nextFase); // Corrigido o scanf
+            if (nextFase == 'S' || nextFase == 's') {
+                break; // Sai do loop e vai para a próxima fase
+            } else {
+                // Se escolher 'N', reinicia a fase
+                nextFase = 'N';  // Garante que a condição do do-while seja verdadeira
+                break; // Sai do loop interno
+            }
         }
     }
+} while (nextFase == 'N' || nextFase == 'n');
 
-
-
-    printf("Obrigado por jogar! Até a próxima.\n");
 
     // Liberando a memória alocada
     liberarLabirinto(mapa, altura);
     free(jogador);
-
-
 }

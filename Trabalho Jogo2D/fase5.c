@@ -4,11 +4,51 @@
 #include <conio.h>
 #include <time.h>
 #include "fase5.h"
+#include "fase1.h"
 
 #define ALTURA 14
 #define LARGURA 15
 
-int main() {
+
+// Função para desenhar o labirinto
+void desenharLabirinto2(char **mapa, int altura, int largura, Jogador *jogador, Objeto *objeto) {
+    for (int i = 0; i < altura; i++) {
+        for (int j = 0; j < largura; j++) {
+            if (i == jogador->y && j == jogador->x) {
+                printf("P "); // Representa o jogador
+            } else if (i == objeto->y && j == objeto->x) {
+                printf("O "); // Representa o objeto
+            } else {
+                printf("%c ", mapa[i][j]);
+            }
+        }
+        printf("\n");
+    }
+}
+
+// Função para mover o objeto aleatoriamente
+void moverObjetoAleatoriamente(char **mapa, int altura, int largura, Objeto *objeto) {
+    // Vetor de direções possíveis (cima, baixo, esquerda, direita)
+    int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};  // Cima, Baixo, Esquerda, Direita
+    int direcaoEscolhida;
+    int novoX, novoY;
+    
+    // Tenta mover o objeto aleatoriamente até que encontre um movimento válido
+    for (int tentativas = 0; tentativas < 10; tentativas++) {
+        direcaoEscolhida = rand() % 4;  // Escolhe uma direção aleatória
+        novoX = objeto->x + direcoes[direcaoEscolhida][1];
+        novoY = objeto->y + direcoes[direcaoEscolhida][0];
+        
+        // Verifica se a nova posição é válida (não é uma parede)
+        if (novoX >= 0 && novoX < largura && novoY >= 0 && novoY < altura && mapa[novoY][novoX] != '#') {
+            objeto->x = novoX;
+            objeto->y = novoY;
+            break;
+        }
+    }
+}
+
+void iniciarFase5() {
     int altura = ALTURA, largura = LARGURA;
 
     // Inicializa o gerador de números aleatórios
@@ -68,7 +108,7 @@ int main() {
 
         while (1) {
             system("cls"); // Limpar tela
-            desenharLabirinto(mapa, altura, largura, jogador, objeto);
+            desenharLabirinto2(mapa, altura, largura, jogador, objeto);
 
             // Verifica se o jogador chegou ao final
             if (mapa[jogador->y][jogador->x] == 'F') {
@@ -117,5 +157,5 @@ int main() {
     } while (strcmp(novamente, "sim") == 0);
 
     printf("Obrigado por jogar! Até a próxima.\n");
-    return 0;
+
 }

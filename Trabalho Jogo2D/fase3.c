@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
 #include "fase1.h"
+#include <conio.h>
 
 #define ALTURA 10
 #define LARGURA 10
 
-int main() {
+
+void iniciarFase3() {
     int altura = ALTURA, largura = LARGURA;
 
     // Criando o labirinto dinamicamente
@@ -41,25 +42,20 @@ int main() {
     jogador->x = 1; // Posição inicial
     jogador->y = 1;
 
-    char entrada;
+    char entrada, nextFase = 'N'; // Variável para controlar a transição entre fases
 
     printf("Bem-vindo ao jogo de labirinto! Use W (cima), A (esquerda), S (baixo), D (direita) para mover-se.\n");
+
+   do {
+    // Reinicia a posição do jogador para o início se o jogador escolher 'N'
+    if (nextFase == 'N' || nextFase == 'n') {
+        jogador->x = 1;
+        jogador->y = 1;
+    }
 
     while (1) {
         system("cls"); // Limpar tela (Windows)
         desenharLabirinto(mapa, altura, largura, jogador);
-
-        // Verifica se o jogador chegou ao final
-        if (mapa[jogador->y][jogador->x] == 'F') {
-            printf("Parabéns! Você completou o labirinto!\n");
-            break;
-        }
-
-        // Verifica se o jogador atingiu um objeto
-        if (mapa[jogador->y][jogador->x] == 'O') {
-            printf("Você perdeu! Colidiu com um objeto!\n");
-            break;
-        }
 
         // Captura a entrada do jogador
         entrada = getch();
@@ -77,11 +73,45 @@ int main() {
                 if (jogador->x < largura - 1 && mapa[jogador->y][jogador->x + 1] != '#') jogador->x++;
                 break;
         }
+
+        // Verifica se o jogador chegou ao final
+        if (mapa[jogador->y][jogador->x] == 'F') {
+            printf("Parabéns! Você completou o labirinto!\n");
+            printf("Deseja ir para a próxima fase? (S/N): ");
+            scanf(" %c", &nextFase); // Corrige o scanf para capturar a resposta do jogador
+            if (nextFase == 'S' || nextFase == 's') {
+                break; // Sai do loop interno e vai para a próxima fase
+            } else {
+                nextFase = 'N'; // Garante que a fase seja reiniciada se o jogador escolher 'N'
+                break; // Sai do loop e reinicia a fase
+            }
+        }
+
+        // Verifica se o jogador colidiu com um objeto
+        if (mapa[jogador->y][jogador->x] == 'O') {
+            // Exibe a mensagem de colisão
+            printf("Você perdeu! Colidiu com um objeto!\n");
+
+            // Pergunta ao jogador se ele quer tentar novamente
+            printf("Deseja tentar novamente? (S/N): ");
+            char tentativa;
+            scanf(" %c", &tentativa); // Captura a resposta
+
+            if (tentativa == 'S' || tentativa == 's') {
+                // Se o jogador escolher tentar novamente, reinicia a posição do jogador
+                jogador->x = 1;
+                jogador->y = 1;
+            } else {
+                // Caso contrário, sai do loop e termina a fase
+                nextFase = 'N'; // Garante que a fase seja reiniciada se o jogador escolher 'N'
+                break; // Sai do loop
+            }
+        }
     }
+} while (nextFase == 'N' || nextFase == 'n'); // Repete a fase se o jogador quiser
 
-    // Liberando a memória alocada
-    liberarLabirinto(mapa, altura);
-    free(jogador);
+// Liberando a memória alocada
+liberarLabirinto(mapa, altura);
+free(jogador);
 
-    return 0;
 }
