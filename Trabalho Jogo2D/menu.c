@@ -7,14 +7,15 @@
 #include <string.h>
 #include <time.h>
 #include "fase1.h"
-#include "estatisticas.h"
+
 
 int main() {
     int opcao;
-    
+    Estatisticas estat;
+
     while(1){
     // Corrigindo as strings dentro do printf
-    printf("Bem Vindo ao Labirinto em C99\n");
+    printf("Bem Vindo ao Labirinto em C99\n\n");
     printf("1 - Iniciar jogo.\n");
     printf("2 - Estatísticas.\n");
     printf("3 - Sair do Jogo.\n");
@@ -24,6 +25,9 @@ int main() {
         
     switch(opcao) {
         case 1:
+        salvarEstatisticas("estatisticas.dat", estat);
+            printf("Bem vindo ao Labirinto!!.\nDigite seu nome:");
+            scanf("%s", estat.nome);
             printf("Iniciando Fase 1...\n");  // Exibe uma mensagem de confirmação
             iniciarFase1(); // Chama a função que inicia a fase 1
             printf("Iniciando Fase 2...\n");
@@ -38,12 +42,11 @@ int main() {
 
         case 2:
             printf("Exibindo estatísticas... \n");
-            iniciarEstatisticas(); 
             break;
 
         case 3: 
             printf("Saindo do jogo...\n");
-            exit(0);
+            exit(1);
             break;
         
         default:

@@ -11,6 +11,13 @@ typedef struct {
     int x, y;
 } Objeto;
 
+typedef struct {
+    char nome[50];
+    int fase;
+    float tempo;  // Tempo gasto na fase
+    int tentativas;  // Quantidade de tentativas
+} Estatisticas;
+
 // Função para desenhar o labirinto
 void desenharLabirinto(char **mapa, int altura, int largura, Jogador *jogador) {
     for (int i = 0; i < altura; i++) {
@@ -130,6 +137,8 @@ void iniciarFase1() {
     // Liberando a memória alocada
     liberarLabirinto(mapa, altura);
     free(jogador);
+
+
 }
 
 
@@ -229,8 +238,10 @@ void iniciarFase2() {
 
 
 void iniciarFase3() {
-    int altura = ALTURA, largura = LARGURA;
+    Estatisticas estat;
+    estat.tentativas = 0;
 
+    int altura = ALTURA, largura = LARGURA;
     // Criando o labirinto dinamicamente
     char **mapa = criarLabirinto(altura, largura);
 
@@ -312,6 +323,8 @@ void iniciarFase3() {
         if (mapa[jogador->y][jogador->x] == 'O') {
             // Exibe a mensagem de colisão
             printf("Você perdeu! Colidiu com um objeto!\n");
+            estat.tentativas += 1;
+
 
             // Pergunta ao jogador se ele quer tentar novamente
             printf("Deseja tentar novamente? (S/N): ");
@@ -344,6 +357,8 @@ free(jogador);
 void iniciarFase4() {
     int altura = 15, largura = 15;
     char nextFase = 'N'; // Garantir que a fase inicie com 'N'
+    Estatisticas estat;
+    estat.tentativas = 0;
 
     // Criando o labirinto dinamicamente
     char **mapa = criarLabirinto(altura, largura);
@@ -431,6 +446,8 @@ void iniciarFase4() {
             if (mapa[jogador->y][jogador->x] == 'O') {
                 // Exibe a mensagem de colisão
                 printf("Você perdeu! Colidiu com um objeto!\n");
+                estat.tentativas += 1;
+
 
                 // Pergunta ao jogador se ele quer tentar novamente
                 printf("Deseja tentar novamente? (S/N): ");
@@ -498,6 +515,9 @@ void moverObjetoAleatoriamente(char **mapa, int altura, int largura, Objeto *obj
 
 void iniciarFase5() {
     int altura = 15, largura = 15;
+    Estatisticas estat;
+    estat.tentativas = 0;
+
 
     // Inicializa o gerador de números aleatórios
     srand(time(NULL));
@@ -566,6 +586,8 @@ void iniciarFase5() {
             // Verifica se o jogador atingiu o objeto
             if (jogador->x == objeto->x && jogador->y == objeto->y || (mapa[jogador->y][jogador->x] == 'O' || mapa[jogador->y][jogador->x] == 'X') ) {
                 printf("Você perdeu! Colidiu com o objeto!\n");
+                estat.tentativas += 1;
+
                 break;
             }
 
@@ -606,6 +628,34 @@ void iniciarFase5() {
 
     printf("Obrigado por jogar! Até a próxima.\n");
 
+}
+
+void salvarEstatisticas(const char *arquivo, Estatisticas estat) {
+    FILE *fp = fopen(arquivo, "ab"); // "ab" para adicionar em modo binário
+    if (!fp) {
+        printf("Erro ao abrir o arquivo!\n");
+        return;
+    }
+    
+    fwrite(&estat, sizeof(Estatisticas), 1, fp);
+    fclose(fp);
+}
+
+void exibirEstatisticas(const char *arquivo) {
+    FILE *fp = fopen(arquivo, "rb"); // "rb" para leitura binária
+    if (!fp) {
+        printf("Nenhum dado encontrado!\n");
+        return;
+    }
+
+    Estatisticas estat;
+    printf("\n=== Estatísticas dos Jogadores ===\n");
+    while (fread(&estat, sizeof(Estatisticas), 1, fp)) {
+        printf("Nome: %s | Fase: %d | Tempo: %.2f segundos | Tentativas: %d\n", 
+               estat.nome, estat.fase, estat.tempo, estat.tentativas);
+    }
+    
+    fclose(fp);
 }
 
 #endif // FASE1_H
